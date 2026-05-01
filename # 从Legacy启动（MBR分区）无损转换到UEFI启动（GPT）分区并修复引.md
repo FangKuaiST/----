@@ -1,4 +1,4 @@
-从Legacy启动（MBR分区）无损转换到UEFI启动（GPT）分区并修复引导
+从Legacy启动（MBR分区）无损转换到UEFI启动（GPT分区）并修复引导
 ===
 知夏 2024-06-01
 
@@ -20,7 +20,7 @@
 
 为此，你需要准备：
 
-1. 一个至少2GB的 ***空白*** U盘（但较好制造商生产的U盘容量都在8GB以上）；
+1. 一个至少2GB的 **空白** U盘（但较好制造商生产的U盘容量都在8GB以上）；
    
 *制作 PE 系统时需要格式化U盘，这将抹除其中的所有数据，因此您必须使用**空白或不再需要的U盘***
 
@@ -163,8 +163,55 @@ b. 若您的磁盘上已经有一块400MB的未分配空间（灰色），则继
 *这一步很重要，只有保存更改按钮按下，分区表才会保存，即生效*
 
 6. 完成后，ESP分区应该会被自动分配一个盘符（如S:），如果没有，请右键ESP分区，选择 "更改分区盘符"，点击 "添加"，选择一个盘符，点击 "确定"。
-7. 
 
+*ESP分区必须被分配一个盘符，才能进行后续的引导修复操作*
+
+### 2.3 引导修复
+
+>参考：
+>
+>https://www.bilibili.com/video/BV1nkhAzgEH3/
+>
+>00:16 开始
+>
+>对于1-4步骤的操作，其必要性存疑，不过我仍选择保留
+
+1. 打开系统所在的分区，点击“浏览文件”按钮，进入分区文件浏览界面
+
+>**⚠️警告**
+>
+>以下操作涉及对引导文件（.efi）的直接操作。
+>若操作不当可能会导致系统无法启动。
+>在进行操作前，请**务必备份重要数据**！
+
+2. 假设系统盘的盘符为（Z:）。在Z:\Windows\Boot\EFI处，复制整个EFI文件夹
+3. 假设ESP分区的盘符为（S:）。在S:目录下，粘贴刚才复制的EFI文件夹
+4. 检查S:\EFI\Microsoft\Boot目录下是否存在bootmgfw.efi文件。
+   
+*在这一步，您可以直接使用DiskGenius的文件复制，也可以使用PE的explorer复制*
+*不过DiskGenius的复制是一个更底层的复制，将会卸载磁盘进行操作*
+*如果在PE的explorer里没有找到，不妨试试DiskGenius的文件复制*
+
+5. 打开NT系统引导修复脚本，点击MBR分区所在的盘符，等待程序修复完毕
+
+### 2.4 BIOS设置调整
+完成以上步骤后，你需要进入BIOS设置界面，将启动模式从Legacy改为UEFI：
+1. 重启电脑，在开机画面出现时，按下BIOS快捷键（不同机型请查看下面快捷键列表）；
+2. 进入BIOS设置界面，找到启动选项（Boot Options）；
+3. 将启动模式（Boot Mode）从Legacy改为UEFI；
+4. 按F10保存更改并退出BIOS。
+
+*不同的BIOS有不同的表述，这需要您有一定的英语能力或者搜索能力*
+*在升级Windows11的过程中，您还需要启用TPM2.0模块，将方法一并写在这里*
+>How to enable TPM
+>
+>If you need to enable TPM, these settings are managed via the UEFI BIOS (PC firmware) and vary based on your device. You can access these settings by choosing: Settings > Update & Security > Recovery > Restart now.
+>
+>From the next screen, choose Troubleshoot > Advanced options > UEFI Firmware Settings > Restart to make the changes. These settings are sometimes contained in a sub-menu in the UEFI BIOS labeled Advanced, Security, or Trusted Computing. The option to enable the TPM may be labeled Security Device, Security Device Support, TPM State, AMD fTPM switch, AMD PSP fTPM, Intel PTT, or Intel Platform Trust Technology.
+>
+>来自Microsofrt官方文档
+>https://support.microsoft.com/en-us/windows/enable-tpm-2-0-on-your-pc-1fd5a332-360d-4f46-a1e7-ae6b0c90645c
+>中文版请将链接中的en-us改为zh-cn，不过这一并把固定术语也进行了翻译，可能会有些混乱，建议互相参考
 
 
 
@@ -172,3 +219,8 @@ b. 若您的磁盘上已经有一块400MB的未分配空间（灰色），则继
 >
 >https://www.ventoy.net/cn/doc_news.html
 >https://zhuanlan.zhihu.com/p/1992972456739226210
+>https://support.microsoft.com/zh-cn/windows/%E5%9C%A8%E7%94%B5%E8%84%91%E4%B8%8A%E5%90%AF%E7%94%A8-tpm-2-0-1fd5a332-360d-4f46-a1e7-ae6b0c90645c
+>https://support.microsoft.com/en-us/windows/enable-tpm-2-0-on-your-pc-1fd5a332-360d-4f46-a1e7-ae6b0c90645c
+>https://www.bilibili.com/video/BV1nkhAzgEH3/
+>
+>同时参考了DeepSeek和豆包给出的指引
